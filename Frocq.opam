@@ -1,0 +1,25 @@
+opam-version: "OPAM_VERSION"
+maintainer: "charlesaverill20@gmail.com"
+version: "dev"
+
+homepage: "https://github.com/GH_UCharles Averill/Frocq.git"
+dev-repo: "git+https://github.com/GH_UCharles Averill/Frocq.git"
+bug-reports: "https://github.com/GH_UCharles Averill/Frocq/issues"
+doc: "https://GH_UCharles Averill.github.io/Frocq/"
+license: ""
+
+synopsis: "Forth, formalized in Rocq"
+description: """
+A formalization of Forth in Rocq for verification of mission-critical embedded systems"""
+
+build: ["dune" "build" "-p" name "-j" jobs]
+depends: [
+  "dune" {>= "3.6"}
+  "coq" {(>= "8.19.1")}
+]
+
+tags: [
+]
+authors: [
+  "Charles Averill"
+]
