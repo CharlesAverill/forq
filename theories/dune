@@ -1,6 +1,0 @@
-(coq.theory
- (name Frocq)
- (package Frocq)
- (synopsis "Forth, formalized in Rocq"))
-
-(include_subdirs qualified)
