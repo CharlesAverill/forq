@@ -15,21 +15,12 @@ See [examples here](theories/examples).
 - Coq namespace: `Forq`
 - Related publication(s): none
 
-## Building and installation instructions
+## Building instructions
 
-The easiest way to install the latest released version of DNAml
-is via [OPAM](https://opam.ocaml.org/doc/Install.html):
-
-```shell
-opam repo add coq-released https://coq.inria.fr/opam/released
-opam install Forq
-```
-
-To instead build and install manually, do:
+To build and install manually, do:
 
 ``` shell
 git clone https://github.com/GH_UCharles Averill/Forq.git
 cd Forq
-dune build
-dune install
+make -C theories
 ```
