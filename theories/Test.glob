@@ -1,5 +1,0 @@
-DIGEST 39d29f10e74d62cd6c46e95ae37e4b94
-FFrocq.Test
-def 11:11 <> x
-R16:19 Corelib.Init.Logic <> True ind
-R29:29 Frocq.Test <> x def

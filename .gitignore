@@ -1,3 +1,5 @@
 _build
 .*.aux
 *.vo*
+*.glob
+.Makefile.d
