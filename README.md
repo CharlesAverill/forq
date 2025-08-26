@@ -20,7 +20,7 @@ This is mostly just for fun and to [learn and experiment with Ltac2](theories/Au
 To build and install manually, do:
 
 ``` shell
-git clone https://github.com/GH_UCharles Averill/Forq.git
+git clone https://github.com/CharlesAverill/Forq.git
 cd Forq
 make -C theories
 ```
