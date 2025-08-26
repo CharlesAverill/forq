@@ -2,6 +2,8 @@
 
 A formalization of Forth in Rocq for verification of critical embedded systems.
 
+See [examples here](theories/examples).
+
 ## Meta
 
 - Author(s):
