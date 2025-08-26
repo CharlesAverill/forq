@@ -1,9 +1,9 @@
 From Stdlib Require Import List.
 Import ListNotations.
 
-From Frocq Require Import Syntax.
-From Frocq Require Import Result.
-From Frocq.Words Require Import Word.
+From Forq Require Import Syntax.
+From Forq Require Import Result.
+From Forq.Words Require Import Word.
 
 Module SmallStep (syntax : WordSyntax) (semantics : WordSemantics syntax).
   Export syntax semantics.

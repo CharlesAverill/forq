@@ -1,4 +1,4 @@
-# Frocq
+# Forq
 
 A formalization of Forth in Rocq for verification of critical embedded systems.
 
@@ -12,7 +12,7 @@ See [examples here](theories/examples).
 - Compatible Rocq versions: 9.0.0 or later
 - Additional dependencies:
   - [Dune](https://dune.build) 2.5 or later
-- Coq namespace: `Frocq`
+- Coq namespace: `Forq`
 - Related publication(s): none
 
 ## Building and installation instructions
@@ -22,14 +22,14 @@ is via [OPAM](https://opam.ocaml.org/doc/Install.html):
 
 ```shell
 opam repo add coq-released https://coq.inria.fr/opam/released
-opam install Frocq
+opam install Forq
 ```
 
 To instead build and install manually, do:
 
 ``` shell
-git clone https://github.com/GH_UCharles Averill/Frocq.git
-cd Frocq
+git clone https://github.com/GH_UCharles Averill/Forq.git
+cd Forq
 dune build
 dune install
 ```

@@ -1,6 +1,6 @@
-From Frocq Require Import Syntax.
-From Frocq Require Import State.
-From Frocq Require Import Result.
+From Forq Require Import Syntax.
+From Forq Require Import State.
+From Forq Require Import Result.
 
 Module Type WordSemantics (syntax : WordSyntax).
   Module St := State syntax.

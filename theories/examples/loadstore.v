@@ -3,11 +3,11 @@ Open Scope N_scope.
 From Stdlib Require Import List.
 Import ListNotations.
 
-From Frocq Require Import Syntax ProgramSemantics State.
-From Frocq.Words Require Import Core.
+From Forq Require Import Auto.
+From Forq.Words Require Import Core.
 
-Module PS := SmallStep CoreSyntax CoreSemantics.
-Export PS.
+Module Auto := Automation CoreSyntax CoreSemantics.
+Import Auto.
 
 Definition loadstore : program := [Fetch; Store].
 
@@ -23,4 +23,13 @@ Proof.
   - simpl. rewrite update_eq. eapply PMStepMulti.
     -- constructor. reflexivity.
     -- simpl. rewrite update_shadow. apply PMStepRefl.
+Qed.
+
+Theorem loadstore_ident' : forall addr val dict, 
+  pmstep 
+    {| stack := [addr; addr]; mem := update empty_mem addr val; dict := dict |}
+    loadstore
+    {| stack := []; mem := update empty_mem addr val; dict := dict |}.
+Proof.
+  intros. unfold loadstore. step (). step ().
 Qed.

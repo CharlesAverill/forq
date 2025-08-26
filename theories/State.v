@@ -5,7 +5,7 @@ From Stdlib Require Import List.
 Import ListNotations.
 From Stdlib Require Import FunctionalExtensionality.
 
-From Frocq Require Import Syntax.
+From Forq Require Import Syntax.
 
 Module State (syntax : WordSyntax).
   Export syntax.

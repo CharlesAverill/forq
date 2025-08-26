@@ -1,8 +1,8 @@
--Q . Frocq
+-Q . Forq
 Result.v
 Syntax.v
 State.v
-MachineModel.v
 ProgramSemantics.v
+Auto.v
 Words/Word.v
 Words/Core.v

@@ -3,10 +3,10 @@ Import ListNotations.
 From Stdlib Require Import NArith.
 Open Scope N_scope.
 
-From Frocq Require Import Result.
-From Frocq Require Import Syntax.
-From Frocq Require Import State.
-From Frocq.Words Require Import Word.
+From Forq Require Import Result.
+From Forq Require Import Syntax.
+From Forq Require Import State.
+From Forq.Words Require Import Word.
 
 Module CoreSyntax <: WordSyntax.
   Inductive CoreWord : Set := Fetch | Store | Exec.
