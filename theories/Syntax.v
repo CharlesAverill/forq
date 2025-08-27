@@ -9,4 +9,4 @@ Module Type WordSyntax.
 End WordSyntax.
 
 Definition addr : Type := N.
-Definition id : Type := string.
+Definition ident : Type := string.

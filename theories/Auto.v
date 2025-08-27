@@ -1,15 +1,21 @@
-From Stdlib Require Import List.
-Import ListNotations.
+From Stdlib Require Export NArith.
+Open Scope N_scope.
+From Stdlib Require Export List.
+Export ListNotations.
 
-From Ltac2 Require Export Ltac2 Pattern.
+From Ltac2 Require Export Ltac2 Pattern Message.
+Ltac2 msg x := print (of_string x).
 
-From Forq Require Export Syntax Word ProgramSemantics State.
-From Forq.Words Require Import Core.
+From Forq Require Export Syntax Word ProgramSemantics State MachineModel Theory.
 
-Module Automation (syntax : WordSyntax) (semantics : WordSemantics syntax).
+Module Automation (syntax : WordSyntax) 
+                  (ST : StateType syntax) 
+                  (semantics : WordSemantics syntax ST) 
+                  (model : MachineModel).
 
-Module PS := SmallStep syntax semantics.
-Export syntax semantics PS.
+Module PS := SmallStep syntax ST semantics model.
+Module TH := ForqTheory syntax PS.MM.
+Export PS TH.
 
 Ltac2 change2 (lhs : constr) (rhs : constr) :=
   ltac1:(lhs rhs |- change lhs with rhs)
@@ -26,16 +32,33 @@ Ltac2 fsimpl () :=
   | [|- context[dict _ ] ] => cbv [dict]
   end).
 
+Ltac2 stop () :=
+  match! goal with
+  | [|- pmstep ?s1 nil ?s2 ] => 
+      if Constr.equal s1 s2 then (
+        apply PMStepRefl
+      ) else ()
+  end.
+
+Ltac solve_wt :=
+  cbv [mem];
+  match goal with
+  | [H: mem_well_typed ?m |- mem_well_typed ?m] =>
+      apply H
+  | [WT: mem_well_typed ?m1, BOUND: ?n < 2^w |- mem_well_typed (?m2 [_ := ?n])] =>
+      apply mem_well_typed_update; [solve_wt | apply BOUND]
+  end.
+
 Ltac2 step () :=
   match! goal with
-  | [|- pmstep ?s1 ?p ?s2 ] =>
+  | [|- pmstep _ (_ :: _) _ ] =>
       eapply PMStepMulti > [
-        now constructor
-      |]
+          now constructor
+        | ltac1:(solve_wt)
+        |
+      ]
   end;
   fsimpl ();
-  try (match! goal with
-  | [|- pmstep ?s _ ?s ] => apply PMStepRefl
-  end).
+  try (stop ()).
 
 End Automation.

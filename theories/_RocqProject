@@ -2,7 +2,9 @@
 Result.v
 Syntax.v
 State.v
+MachineModel.v
 ProgramSemantics.v
 Auto.v
+Theory.v
 Words/Word.v
 Words/Core.v
