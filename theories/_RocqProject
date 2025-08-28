@@ -8,3 +8,5 @@ Auto.v
 Theory.v
 Words/Word.v
 Words/Core.v
+ProofRules/Hoare.v
+ProofRules/Words/Core.v

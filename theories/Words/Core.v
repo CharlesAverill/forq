@@ -29,10 +29,10 @@ Module CoreSemantics (ST : StateType CoreSyntax) <: (WordSemantics CoreSyntax ST
         cstep s n
           (Ok ({|stack := n :: s.(stack); mem := s.(mem); dict := s.(dict)|}, []))
     (* fetch *)
-    | StepFetchOk : forall (s : state) (addr : addr) (st : list N),
-        s.(stack) = addr :: st ->
-        cstep s Fetch
-          (Ok ({|stack := s.(mem) addr :: st; 
+    | StepFetchOk : forall (s : state) (addr : addr),
+        cstep {|stack := addr :: s.(stack); mem := s.(mem); dict := s.(dict) |} 
+            Fetch
+          (Ok ({|stack := s.(mem) addr :: s.(stack); 
                 mem := s.(mem); dict := s.(dict)|}, []))
     | StepFetchUnderflow : forall (s : state),
         s.(stack) = [] -> cstep s Fetch (Error "fetch: stack underflow")

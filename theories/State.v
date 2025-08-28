@@ -8,18 +8,25 @@ From Stdlib Require Import FunctionalExtensionality.
 From Forq Require Import Syntax.
 
 Module Type StateType (syntax : WordSyntax).
+  Definition stackT : Type := list N.
+  Definition memT : Type := addr -> N.
+  Definition dictT : Type := addr -> syntax.program.
   Record state : Type := {
-    stack : list N;
-    mem : addr -> N;
-    dict : addr -> syntax.program
+    stack : stackT;
+    mem : memT;
+    dict : dictT
   }.
 End StateType.
 
 Module State (syntax : WordSyntax) <: StateType syntax.
+  Definition stackT : Type := list N.
+  Definition memT : Type := addr -> N.
+  Definition dictT : Type := addr -> syntax.program.
+
   Record state : Type := {
-    stack : list N;                 (* data stack *)
-    mem : addr -> N;                (* memory function *)
-    dict : addr -> syntax.program   (* word dictionary *)
+    stack : stackT;                 (* data stack *)
+    mem : memT;                (* memory function *)
+    dict : dictT   (* word dictionary *)
   }.
 
   Definition empty_mem : (addr -> N) :=
@@ -29,17 +36,17 @@ Module State (syntax : WordSyntax) <: StateType syntax.
     fun _ => [].
 End State.
 
-Definition update (mem : addr -> N) (key : addr) (val : N) : (addr -> N) :=
+Definition update {X : Type} (mem : addr -> X) (key : addr) (val : X) : (addr -> X) :=
   fun key' => if key' =? key then val else mem key'.
 Notation "m [ k := v ]" := (update m k v).
 
-Definition update_eq : forall mem key val,
+Definition update_eq : forall {X : Type} mem key (val : X),
   mem [key := val] key = val.
 Proof.
   intros. unfold update. now rewrite N.eqb_refl.
 Qed.
 
-Definition update_neq : forall mem key1 key2 val,
+Definition update_neq : forall {X : Type} mem key1 key2 (val : X),
   key1 <> key2 ->
   mem [key1 := val] key2 = mem key2.
 Proof.
@@ -48,7 +55,7 @@ Proof.
   apply N.eqb_neq in H. now rewrite H.
 Qed.
 
-Definition update_shadow : forall mem key val val',
+Definition update_shadow : forall {X : Type} mem key (val val' : X),
   mem [key := val] [key := val'] = mem [key := val'].
 Proof.
   intros. unfold update. apply functional_extensionality. intros.

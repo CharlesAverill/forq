@@ -1,4 +1,4 @@
-From Stdlib Require Export NArith.
+From Stdlib Require Export NArith Lia.
 Open Scope N_scope.
 From Stdlib Require Export List.
 Export ListNotations.
@@ -45,8 +45,8 @@ Ltac solve_wt :=
   match goal with
   | [H: mem_well_typed ?m |- mem_well_typed ?m] =>
       apply H
-  | [WT: mem_well_typed ?m1, BOUND: ?n < 2^w |- mem_well_typed (?m2 [_ := ?n])] =>
-      apply mem_well_typed_update; [solve_wt | apply BOUND]
+  | [WT: mem_well_typed ?m1 |- mem_well_typed (?m2 [_ := ?n])] =>
+      apply mem_well_typed_update; [solve_wt | lia]
   end.
 
 Ltac2 step () :=
