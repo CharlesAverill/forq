@@ -1,10 +1,11 @@
 From Stdlib Require Import NArith.
 From Stdlib Require Import List.
 Import ListNotations.
+From Ltac2 Require Import Ltac2.
 
 From Forq.ProofRules Require Import Hoare.
 From Forq.Words Require Import Word Core.
-From Forq Require Import Syntax State MachineModel.
+From Forq Require Import Syntax State MachineModel Tactics.
 
 Module CoreHoare (ST : StateType CoreSyntax) 
                  (model : MachineModel).
@@ -18,37 +19,28 @@ Theorem hoare_literal : forall P (n : N),
   {{ P[.S :: n] }} [Literal n] {{ P }}.
 Proof.
   intros. unfold valid_hoare_triple. intros.
-  inversion H; clear H; subst. rewrite app_nil_r in H7.
-  inversion H3; clear H3; subst. inversion H7; clear H7; subst.
+  inv H. inv [WordStep PrependProg].
   apply H0.
 Qed.
 
-Goal forall (s : stackT), {{ .S [=] s }} [Literal 5] {{ .S [=] (5 :: s : stackT) }}.
-  unfold valid_hoare_triple. intros.
-  inversion H; subst; clear H. inversion H3; subst; clear H3.
-  inversion H7; subst; clear H7. simpl. rewrite H0.
-  reflexivity.
-Qed.
-
-Goal forall addr tl, {{ .S [=] (addr :: tl : stackT) }} [Fetch] {{fun st => st.(stack) = st.(mem) addr :: tl }}.
-  unfold valid_hoare_triple. intros.
-  inversion H; subst; clear H. destruct st.
-  inversion H3; subst; clear H3.
-  inversion H7; subst; clear H7. simpl in *.
-  replace (mkAssertStack (addr :: tl : stackT) _) with (addr :: tl) in H0 by reflexivity.
-  inversion H0; subst; clear H0. reflexivity.
-Qed.
-
-Theorem hoare_fetch : forall P (addr : N),
-  {{ P[.S :: @@ addr] }} [Fetch] {{ P[.S :: addr] }}.
+Theorem hoare_fetch : forall P (addr : addr) tl,
+  {{ fun st =>
+      st.(stack) = addr :: tl /\
+      P {|stack := st.(mem) addr :: tl; mem := st.(mem); dict := st.(dict) |}
+  }} [Fetch] {{ P }}.
 Proof.
-  unfold valid_hoare_triple, assertion_push_stack. intros.
-  destruct st, st'. simpl in *.
-  replace ((mkAssertN addr) _) with addr by reflexivity.
-  destruct stack0. inversion H; inversion H3.
-  inversion H; subst; clear H. rewrite app_nil_r in H7.
-  inversion H3; subst; clear H3; simpl in *.
-  inversion H7; subst; clear H7.
-Abort.
+  unfold valid_hoare_triple. intros P addr tl st st' Step (StackEq & PPost).
+  inv Step. inv [WordStep PrependProg StackEq]. assumption.
+Qed.
+
+Theorem hoare_store : forall P (addr : addr) (val : N) tl,
+  {{ fun st =>
+      st.(stack) = val :: addr :: tl /\
+      P {|stack := tl; mem := update st.(mem) addr val; dict := st.(dict) |}
+  }} [Store] {{ P }}.
+Proof.
+  unfold valid_hoare_triple. intros P addr val tl st st' Step (StackEq & PPost).
+  inv Step. inv [WordStep PrependProg StackEq]. assumption.
+Qed.
 
 End CoreHoare.

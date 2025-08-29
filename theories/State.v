@@ -16,6 +16,8 @@ Module Type StateType (syntax : WordSyntax).
     mem : memT;
     dict : dictT
   }.
+
+  Parameter push : state -> N -> state.
 End StateType.
 
 Module State (syntax : WordSyntax) <: StateType syntax.
@@ -34,6 +36,9 @@ Module State (syntax : WordSyntax) <: StateType syntax.
 
   Definition empty_dict : (addr -> syntax.program) :=
     fun _ => [].
+
+  Definition push (st : state) (n : N) : state :=
+    {| stack := n :: st.(stack); mem := st.(mem); dict := st.(dict) |}.
 End State.
 
 Definition update {X : Type} (mem : addr -> X) (key : addr) (val : X) : (addr -> X) :=

@@ -1,4 +1,5 @@
 -Q . Forq
+Tactics.v
 Result.v
 Syntax.v
 State.v

@@ -1,6 +1,6 @@
 From Stdlib Require Import NArith List.
 
-From Forq Require Import Syntax State ProgramSemantics MachineModel.
+From Forq Require Import Syntax State ProgramSemantics MachineModel Auto.
 From Forq.Words Require Import Word.
 
 Module Hoare (syntax : WordSyntax) 
@@ -9,7 +9,8 @@ Module Hoare (syntax : WordSyntax)
              (model : MachineModel).
 
 Module PS := SmallStep syntax ST semantics model.
-Import PS.
+Module Auto := Automation syntax ST semantics model.
+Import PS Auto.
 
 Definition Assertion : Type := state -> Prop.
 
@@ -114,10 +115,19 @@ Proof.
   eapply pmstep_app_backward in H1.
   destruct H1 as (s2 & Stept1 & Stept2).
   eapply H0.
-    eassumption.
+    eauto.
   eapply H.
-    eassumption.
+    eauto.
   assumption.
+Qed.
+
+Theorem hoare_cons : forall P Q R wrd t,
+  {{P}} (wrd :: nil) {{Q}} ->
+  {{Q}} t {{R}} ->
+  {{P}} wrd :: t {{R}}.
+Proof.
+  intros. ltac1:(replace (wrd :: t) with ((wrd :: nil) ++ t) by reflexivity).
+  now apply hoare_app with (Q := Q).
 Qed.
 
 Theorem hoare_post_true : forall (P Q : Assertion) c,
@@ -131,7 +141,32 @@ Theorem hoare_pre_false : forall (P Q : Assertion) c,
   (forall st, ~ (P st)) ->
   {{P}} c {{Q}}.
 Proof.
-  intros. intros st st' _ contra. exfalso. now apply (H st).
+  intros. intros st st' _ contra. specialize (H st). ltac1:(contradiction).
+Qed.
+
+Theorem hoare_consequence_pre : forall (P P' Q : Assertion) c,
+  {{P'}} c {{Q}} ->
+  P ->> P' ->
+  {{P}} c {{Q}}.
+Proof.
+  unfold valid_hoare_triple, "->>".
+  intros P P' Q c Hhoare Himp st st' Heval Hpre.
+  apply Hhoare with (st := st).
+  - assumption.
+  - apply Himp. assumption.
+Qed.
+
+Theorem hoare_consequence_post : forall (P Q Q' : Assertion) c,
+  {{P}} c {{Q'}} ->
+  Q' ->> Q ->
+  {{P}} c {{Q}}.
+Proof.
+  unfold valid_hoare_triple, "->>".
+  intros P Q Q' c Hhoare Himp st st' Heval Hpre.
+  apply Himp.
+  apply Hhoare with (st := st).
+  - assumption.
+  - assumption.
 Qed.
 
 Definition assertion_sub_stack (stack' : stackT) (P:Assertion) : Assertion :=
@@ -144,6 +179,14 @@ Definition assertion_push_stack (val : AssertionN) (P : Assertion) : Assertion :
     P {| stack := (val st) :: st.(stack); mem := st.(mem); dict := st.(dict) |}.
 Notation "P '[.S' :: v ]" := (assertion_push_stack (mkAssertN v) P)
   (at level 10) : hoare_spec_scope.
+Fixpoint assertion_push_stack_list (vals : list N) (P : Assertion) : Assertion :=
+  match vals with
+  | nil => P
+  | v :: vs => assertion_push_stack (mkAssertN v) (assertion_push_stack_list vs P)
+  end.
+Notation "P '[.S' :: v ; .. ; vn ]" := 
+  (assertion_push_stack_list (cons v .. (cons vn nil) ..) P)
+  (at level 10, right associativity) : hoare_spec_scope.
 
 Definition assertion_sub_mem (a : addr) (v : N) (P:Assertion) : Assertion :=
   fun (st : state) =>

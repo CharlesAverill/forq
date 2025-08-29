@@ -15,10 +15,10 @@ Definition nilprog : program := [].
 Inductive pmstep : state -> program -> state -> Prop :=
 | PMStepRefl : forall s,
     pmstep s nilprog s
-| PMStepMulti : forall wrd p p' s1 s2 s3,
-    step s1 wrd (Ok (s2, p')) ->
-    mem_well_typed s2.(mem) ->
-    pmstep s2 (p' ++ p) s3 ->
+| PMStepMulti : forall wrd p p' s1 s2 s3
+    (WordStep: step s1 wrd (Ok (s2, p')))
+    (WellTyped: mem_well_typed s2.(mem))
+    (PrependProg: pmstep s2 (p' ++ p) s3),
     pmstep s1 (wrd :: p) s3.
 
 Theorem pmstep_app_forward : forall p1 p2 s1 s2 s3,
@@ -29,7 +29,7 @@ Proof.
   intros. revert s3 p2 H0.
   induction H; intros; subst; simpl in *.
     assumption.
-  econstructor. eassumption. assumption.
+  econstructor. apply WordStep. assumption.
   rewrite app_assoc. apply IHpmstep. assumption.
 Qed.
 
@@ -43,15 +43,15 @@ Proof.
   intros s1 prog s3 H. induction H; intros.
     symmetry in H; apply app_eq_nil in H; destruct H; subst.
     eexists. split; constructor.
-  destruct p1.
-    exists s1. split. constructor. simpl in H2; subst. econstructor.
-    eassumption. assumption. apply H1.
-  simpl in H2; inversion H2; subst; clear H2.
+  destruct p1; simpl in H0; subst.
+    exists s1. split. constructor. econstructor.
+    apply WordStep. assumption. apply H.
+  inversion H0; subst; clear H0.
   specialize (IHpmstep (p' ++ p1) p2).
   rewrite app_assoc in IHpmstep. specialize (IHpmstep eq_refl).
   destruct IHpmstep as (s4 & IHp1 & IHp2).
-  eexists. split. econstructor. eassumption. assumption.
-  eassumption. assumption.
+  eexists. split. econstructor. apply WordStep. assumption.
+  apply IHp1. assumption.
 Qed.
 
 Lemma pmstep_app_backward : forall p1 p2 s1 s3,

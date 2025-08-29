@@ -29,30 +29,27 @@ Module CoreSemantics (ST : StateType CoreSyntax) <: (WordSemantics CoreSyntax ST
         cstep s n
           (Ok ({|stack := n :: s.(stack); mem := s.(mem); dict := s.(dict)|}, []))
     (* fetch *)
-    | StepFetchOk : forall (s : state) (addr : addr),
-        cstep {|stack := addr :: s.(stack); mem := s.(mem); dict := s.(dict) |} 
+    | StepFetchOk : forall (addr : addr) (st : stackT) (mem : memT) (dict : dictT),
+        cstep {|stack := addr :: st; mem := mem; dict := dict|} 
             Fetch
-          (Ok ({|stack := s.(mem) addr :: s.(stack); 
-                mem := s.(mem); dict := s.(dict)|}, []))
-    | StepFetchUnderflow : forall (s : state),
-        s.(stack) = [] -> cstep s Fetch (Error "fetch: stack underflow")
+          (Ok ({|stack := mem addr :: st; mem := mem; dict := dict|}, []))
+    | StepFetchUnderflow : forall (mem : memT) (dict : dictT),
+        cstep {|stack := []; mem := mem; dict := dict|} Fetch (Error "fetch: stack underflow")
     (* store *)
-    | StepStoreOk : forall (s : state) (val : N) (addr : addr) (st : list N),
-        s.(stack) = val :: addr :: st ->
-        cstep s Store
-          (Ok ({|stack := st; mem := s.(mem)[addr := val]; 
-                dict := s.(dict)|}, []))
+    | StepStoreOk : forall (val : N) (addr : addr) (st : stackT) (mem : memT) (dict : dictT),
+        cstep {|stack := val :: addr :: st; mem := mem; dict := dict|} 
+            Store
+          (Ok ({|stack := st; mem := mem[addr := val]; dict := dict|}, []))
     | StepStoreUnderflow : forall (s : state),
-        s.(stack) = [] \/ (exists x, s.(stack) = [x]) -> 
+        (List.length s.(stack) <= 1)%nat -> 
         cstep s Store (Error "store: stack underflow")
     (* exec *)
-    | StepExecOk : forall (s : state) (st : list N) (prog_addr : addr),
-        s.(stack) = prog_addr :: st ->
-        cstep s Exec (Ok ({|stack := st; mem := s.(mem); dict := s.(dict)|}, 
-                          s.(dict) prog_addr))
-    | StepExecUnderflow : forall (s : state),
-        s.(stack) = [] ->
-        cstep s Exec (Error "exec: stack underflow")
+    | StepExecOk : forall (prog_addr : addr) (st : stackT) (mem : memT) (dict : dictT),
+        cstep {|stack := prog_addr :: st; mem := mem; dict := dict|}
+            Exec 
+          (Ok ({|stack := st; mem := mem; dict := dict|}, dict prog_addr))
+    | StepExecUnderflow : forall (mem : memT) (dict : dictT),
+        cstep {|stack := []; mem := mem; dict := dict|} Exec (Error "exec: stack underflow")
   .
 
   Definition step := cstep.
